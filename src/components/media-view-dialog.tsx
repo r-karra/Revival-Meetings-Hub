@@ -9,6 +9,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { ScrollArea } from './ui/scroll-area';
+import { getYoutubeEmbedUrl } from '@/lib/utils';
 
 type MediaViewDialogProps = {
   item: MediaItem | null;
@@ -18,6 +19,9 @@ type MediaViewDialogProps = {
 
 export function MediaViewDialog({ item, isOpen, onOpenChange }: MediaViewDialogProps) {
   if (!item) return null;
+
+  const isVideo = item.type === 'video';
+  const youtubeEmbedUrl = isVideo ? getYoutubeEmbedUrl(item.url) : null;
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -29,6 +33,15 @@ export function MediaViewDialog({ item, isOpen, onOpenChange }: MediaViewDialogP
           <div className="aspect-video w-full rounded-lg overflow-hidden bg-muted relative">
             {item.type === 'image' ? (
               <Image src={item.url} alt={item.title} layout="fill" objectFit="contain" data-ai-hint="worship event" />
+            ) : youtubeEmbedUrl ? (
+              <iframe
+                src={youtubeEmbedUrl}
+                title={item.title}
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                className="h-full w-full"
+              />
             ) : (
               <video controls autoPlay className="h-full w-full object-contain">
                 <source src={item.url} type="video/mp4" />

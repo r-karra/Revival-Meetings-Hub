@@ -4,6 +4,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from './ui/card'
 import { Button } from './ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './ui/dropdown-menu';
 import { MoreVertical, Edit, Trash2, Eye } from 'lucide-react';
+import { getYoutubeEmbedUrl } from '@/lib/utils';
 
 type MediaCardProps = {
   item: MediaItem;
@@ -13,6 +14,9 @@ type MediaCardProps = {
 };
 
 export function MediaCard({ item, onReadMore, onEdit, onDelete }: MediaCardProps) {
+  const isVideo = item.type === 'video';
+  const youtubeEmbedUrl = isVideo ? getYoutubeEmbedUrl(item.url) : null;
+
   return (
     <Card className="flex flex-col overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300">
       <CardHeader className="flex-row items-start justify-between pb-2">
@@ -39,6 +43,15 @@ export function MediaCard({ item, onReadMore, onEdit, onDelete }: MediaCardProps
         <div className="aspect-video w-full rounded-md overflow-hidden bg-muted mb-4 relative">
           {item.type === 'image' ? (
             <Image src={item.url} alt={item.title} layout="fill" objectFit="cover" data-ai-hint="worship event" />
+          ) : youtubeEmbedUrl ? (
+            <iframe
+              src={youtubeEmbedUrl}
+              title={item.title}
+              frameBorder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+              className="h-full w-full"
+            />
           ) : (
             <video controls className="h-full w-full object-cover">
               <source src={item.url} type="video/mp4" />
