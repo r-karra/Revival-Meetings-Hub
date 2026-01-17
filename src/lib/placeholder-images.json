@@ -1,3 +1,40 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "1",
+      "description": "A congregation with hands raised in worship during a revival meeting.",
+      "imageUrl": "https://images.unsplash.com/photo-1742632660743-753720393c7b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHx3b3JzaGlwJTIwY29uZ3JlZ2F0aW9ufGVufDB8fHx8MTc2ODYyNTQ0NHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "worship congregation"
+    },
+    {
+      "id": "2",
+      "description": "A speaker passionately preaching from a podium on a brightly lit stage.",
+      "imageUrl": "https://images.unsplash.com/photo-1594142117505-c70dcd31087c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxwcmVhY2hpbmclMjBwYXN0b3J8ZW58MHx8fHwxNzY4NjI1NDQzfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "preaching pastor"
+    },
+    {
+      "id": "3",
+      "description": "Close-up of a bible resting on a wooden table, highlighted by a single light source.",
+      "imageUrl": "https://images.unsplash.com/photo-1639753759816-fd5442a41d1f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxiaWJsZSUyMGxpZ2h0fGVufDB8fHx8MTc2ODYyNTQ0M3ww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "bible light"
+    },
+    {
+      "id": "4",
+      "description": "A diverse group of people praying together in a circle.",
+      "imageUrl": "https://images.unsplash.com/photo-1609234656381-73e732808098?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxwcmF5ZXIlMjBncm91cHxlbnwwfHx8fDE3Njg2MjU0NDN8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "prayer group"
+    },
+    {
+      "id": "5",
+      "description": "An outdoor baptism ceremony taking place in a serene lake at sunset.",
+      "imageUrl": "https://images.unsplash.com/photo-1578825033195-5512bc989e8c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxiYXB0aXNtJTIwc3Vuc2V0fGVufDB8fHx8MTc2ODYyNTQ0NHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "baptism sunset"
+    },
+    {
+      "id": "6",
+      "description": "A music band leading worship on stage with guitars and drums.",
+      "imageUrl": "https://images.unsplash.com/photo-1610414302178-4ba638c4dd4b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHx3b3JzaGlwJTIwYmFuZHxlbnwwfHx8fDE3Njg2MTA0MjB8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "worship band"
+    }
+  ]
 }
