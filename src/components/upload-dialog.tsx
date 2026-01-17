@@ -37,7 +37,8 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Link, HardDrive } from 'lucide-react';
+import { Link, HardDriveUpload } from 'lucide-react';
+import { ScrollArea } from './ui/scroll-area';
 
 const formSchema = z.object({
   title: z.string().min(2, {
@@ -140,7 +141,7 @@ export function UploadDialog({ children }: { children: ReactNode }) {
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="sm:max-w-[600px]">
+      <DialogContent className="sm:max-w-[600px] max-h-[90vh] flex flex-col">
         <DialogHeader>
           <DialogTitle className="text-2xl font-headline">Upload Media</DialogTitle>
           <DialogDescription>
@@ -148,120 +149,124 @@ export function UploadDialog({ children }: { children: ReactNode }) {
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <Tabs defaultValue="url" className="w-full" onValueChange={handleTabChange}>
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="url">
-                  <Link className="mr-2 h-4 w-4" /> URL
-                </TabsTrigger>
-                <TabsTrigger value="local">
-                  <HardDrive className="mr-2 h-4 w-4" /> Local
-                </TabsTrigger>
-              </TabsList>
-              <TabsContent value="url" className="py-4">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="flex-1 flex flex-col overflow-hidden">
+            <ScrollArea className="flex-grow pr-6 -mr-6">
+              <div className="space-y-4 pr-6">
+                <Tabs defaultValue="url" className="w-full" onValueChange={handleTabChange}>
+                  <TabsList className="grid w-full grid-cols-2">
+                    <TabsTrigger value="url">
+                      <Link className="mr-2 h-4 w-4" /> URL
+                    </TabsTrigger>
+                    <TabsTrigger value="local">
+                      <HardDriveUpload className="mr-2 h-4 w-4" /> Local
+                    </TabsTrigger>
+                  </TabsList>
+                  <TabsContent value="url" className="py-4">
+                    <FormField
+                      control={form.control}
+                      name="url"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Media URL</FormLabel>
+                          <FormControl>
+                            <Input placeholder="https://example.com/image.jpg" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </TabsContent>
+                  <TabsContent value="local" className="py-4 space-y-4">
+                    <FormField
+                      control={form.control}
+                      name="url"
+                      render={() => (
+                        <FormItem>
+                          <FormLabel>Upload File</FormLabel>
+                          <FormControl>
+                            <Input
+                              id="local-file-input"
+                              ref={fileInputRef}
+                              type="file"
+                              accept="image/*,video/mp4"
+                              onChange={handleFileChange}
+                              className="cursor-pointer file:font-semibold file:text-primary"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    {filePreview && (
+                      <div className="relative aspect-video w-full rounded-md overflow-hidden bg-muted">
+                        {form.getValues('type') === 'image' ? (
+                          <Image src={filePreview} alt="File preview" layout="fill" objectFit="cover" />
+                        ) : (
+                          <video src={filePreview} controls className="h-full w-full object-cover" />
+                        )}
+                      </div>
+                    )}
+                  </TabsContent>
+                </Tabs>
+                
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="title"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Title</FormLabel>
+                        <FormControl>
+                          <Input placeholder="E.g., Sunday Service Highlights" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="type"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Media Type</FormLabel>
+                        <Select onValueChange={field.onChange} value={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select a media type" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="image">Image</SelectItem>
+                            <SelectItem value="video">Video</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                
                 <FormField
                   control={form.control}
-                  name="url"
+                  name="description"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Media URL</FormLabel>
+                      <FormLabel>Description</FormLabel>
                       <FormControl>
-                        <Input placeholder="https://example.com/image.jpg" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </TabsContent>
-              <TabsContent value="local" className="py-4 space-y-4">
-                <FormField
-                  control={form.control}
-                  name="url"
-                  render={() => (
-                    <FormItem>
-                      <FormLabel>Upload File</FormLabel>
-                      <FormControl>
-                        <Input
-                          id="local-file-input"
-                          ref={fileInputRef}
-                          type="file"
-                          accept="image/*,video/mp4"
-                          onChange={handleFileChange}
-                          className="cursor-pointer file:font-semibold file:text-primary"
+                        <Textarea
+                          placeholder="Tell us about this moment..."
+                          className="resize-y min-h-[100px]"
+                          {...field}
                         />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-                {filePreview && (
-                  <div className="relative aspect-video w-full rounded-md overflow-hidden bg-muted">
-                    {form.getValues('type') === 'image' ? (
-                      <Image src={filePreview} alt="File preview" layout="fill" objectFit="cover" />
-                    ) : (
-                      <video src={filePreview} controls className="h-full w-full object-cover" />
-                    )}
-                  </div>
-                )}
-              </TabsContent>
-            </Tabs>
+              </div>
+            </ScrollArea>
             
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="title"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Title</FormLabel>
-                    <FormControl>
-                      <Input placeholder="E.g., Sunday Service Highlights" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="type"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Media Type</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select a media type" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="image">Image</SelectItem>
-                        <SelectItem value="video">Video</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-            
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Description</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="Tell us about this moment..."
-                      className="resize-y min-h-[100px]"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            
-            <DialogFooter>
+            <DialogFooter className="pt-4 flex-shrink-0">
               <DialogClose asChild>
                 <Button type="button" variant="secondary" disabled={form.formState.isSubmitting}>
                   Cancel
