@@ -7,6 +7,7 @@ import { z } from 'zod';
 import { useToast } from '@/hooks/use-toast';
 import { updateMediaAction } from '@/app/actions';
 import type { MediaItem } from '@/lib/types';
+import { getYoutubeEmbedUrl } from '@/lib/utils';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -66,6 +67,13 @@ export function EditMediaDialog({ item, isOpen, onOpenChange }: EditMediaDialogP
       form.reset(item);
     }
   }, [item, form]);
+
+  const urlValue = form.watch('url');
+  useEffect(() => {
+    if (urlValue && getYoutubeEmbedUrl(urlValue)) {
+      form.setValue('type', 'video');
+    }
+  }, [urlValue, form]);
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     if (!item) return;
@@ -137,7 +145,7 @@ export function EditMediaDialog({ item, isOpen, onOpenChange }: EditMediaDialogP
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Media Type</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Select a media type" />

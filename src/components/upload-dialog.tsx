@@ -7,6 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useToast } from '@/hooks/use-toast';
 import { createMediaAction } from '@/app/actions';
+import { getYoutubeEmbedUrl } from '@/lib/utils';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -73,6 +74,13 @@ export function UploadDialog({ children }: { children: ReactNode }) {
   useEffect(() => {
     setIsClient(true);
   }, []);
+
+  const urlValue = form.watch('url');
+  useEffect(() => {
+    if (getYoutubeEmbedUrl(urlValue)) {
+      form.setValue('type', 'video');
+    }
+  }, [urlValue, form]);
 
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -169,7 +177,7 @@ export function UploadDialog({ children }: { children: ReactNode }) {
                       <Link className="mr-2 h-4 w-4" /> URL
                     </TabsTrigger>
                     <TabsTrigger value="local">
-                      <HardDriveUpload className="mr-2 h-4 w-4" /> Local
+                      <HardDriveUpload className="mr-2 h-4 w-4" /> Local File
                     </TabsTrigger>
                   </TabsList>
                   <TabsContent value="url" className="py-4">
