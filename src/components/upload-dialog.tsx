@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, type ReactNode, useRef } from 'react';
+import { useState, type ReactNode, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -67,6 +67,13 @@ export function UploadDialog({ children }: { children: ReactNode }) {
       type: 'image',
     },
   });
+  
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -138,6 +145,10 @@ export function UploadDialog({ children }: { children: ReactNode }) {
     }
   };
   
+  if (!isClient) {
+    return <>{children}</>;
+  }
+
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>{children}</DialogTrigger>
