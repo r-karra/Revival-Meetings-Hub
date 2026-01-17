@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, type ReactNode } from 'react';
+import { useState, type ReactNode, useRef } from 'react';
+import Image from 'next/image';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -36,8 +37,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Upload, Link, HardDrive, CircleAlert } from 'lucide-react';
-import { Alert, AlertDescription, AlertTitle } from './ui/alert';
+import { Link, HardDrive } from 'lucide-react';
 
 const formSchema = z.object({
   title: z.string().min(2, {
@@ -46,7 +46,7 @@ const formSchema = z.object({
   description: z.string().min(10, {
     message: 'Description must be at least 10 characters.',
   }),
-  url: z.string().url({ message: 'Please enter a valid URL.' }),
+  url: z.string().min(1, { message: 'A media URL must be provided or a file uploaded.' }).url({ message: 'Please enter a valid URL or select a file.' }),
   type: z.enum(['image', 'video'], {
     required_error: 'You need to select a media type.',
   }),
@@ -54,6 +54,8 @@ const formSchema = z.object({
 
 export function UploadDialog({ children }: { children: ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
+  const [filePreview, setFilePreview] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -64,6 +66,33 @@ export function UploadDialog({ children }: { children: ReactNode }) {
       type: 'image',
     },
   });
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) { // 5MB limit
+        toast({
+          variant: "destructive",
+          title: "File too large",
+          description: "Please select a file smaller than 5MB.",
+        });
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const dataUrl = reader.result as string;
+        setFilePreview(dataUrl);
+        form.setValue('url', dataUrl, { shouldValidate: true });
+        if (file.type.startsWith('image/')) {
+          form.setValue('type', 'image');
+        } else if (file.type.startsWith('video/')) {
+          form.setValue('type', 'video');
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     const formData = new FormData();
@@ -80,17 +109,36 @@ export function UploadDialog({ children }: { children: ReactNode }) {
       });
       setIsOpen(false);
       form.reset();
+      setFilePreview(null);
     } else {
+      const errorMessages = result.errors ? Object.values(result.errors).flat().join(' ') : 'Something went wrong.';
       toast({
         variant: 'destructive',
         title: 'Upload Failed',
-        description: 'Something went wrong. Please check your input and try again.',
+        description: errorMessages || 'Please check your input and try again.',
       });
     }
   }
+
+  const handleOpenChange = (open: boolean) => {
+    setIsOpen(open);
+    if (!open) {
+      form.reset();
+      setFilePreview(null);
+    }
+  };
+
+  const handleTabChange = () => {
+    form.setValue('url', '');
+    form.clearErrors('url');
+    setFilePreview(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
   
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
@@ -101,16 +149,13 @@ export function UploadDialog({ children }: { children: ReactNode }) {
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <Tabs defaultValue="url" className="w-full">
-              <TabsList className="grid w-full grid-cols-3">
+            <Tabs defaultValue="url" className="w-full" onValueChange={handleTabChange}>
+              <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="url">
                   <Link className="mr-2 h-4 w-4" /> URL
                 </TabsTrigger>
                 <TabsTrigger value="local">
                   <HardDrive className="mr-2 h-4 w-4" /> Local
-                </TabsTrigger>
-                <TabsTrigger value="drive" disabled>
-                  Google Drive
                 </TabsTrigger>
               </TabsList>
               <TabsContent value="url" className="py-4">
@@ -128,14 +173,36 @@ export function UploadDialog({ children }: { children: ReactNode }) {
                   )}
                 />
               </TabsContent>
-              <TabsContent value="local" className="py-4">
-                 <Alert variant="destructive">
-                    <CircleAlert className="h-4 w-4" />
-                    <AlertTitle>Feature Not Available</AlertTitle>
-                    <AlertDescription>
-                      Local file uploads are not yet supported. Please use the URL option.
-                    </AlertDescription>
-                  </Alert>
+              <TabsContent value="local" className="py-4 space-y-4">
+                <FormField
+                  control={form.control}
+                  name="url"
+                  render={() => (
+                    <FormItem>
+                      <FormLabel>Upload File</FormLabel>
+                      <FormControl>
+                        <Input
+                          id="local-file-input"
+                          ref={fileInputRef}
+                          type="file"
+                          accept="image/*,video/mp4"
+                          onChange={handleFileChange}
+                          className="cursor-pointer file:font-semibold file:text-primary"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                {filePreview && (
+                  <div className="relative aspect-video w-full rounded-md overflow-hidden bg-muted">
+                    {form.getValues('type') === 'image' ? (
+                      <Image src={filePreview} alt="File preview" layout="fill" objectFit="cover" />
+                    ) : (
+                      <video src={filePreview} controls className="h-full w-full object-cover" />
+                    )}
+                  </div>
+                )}
               </TabsContent>
             </Tabs>
             
@@ -159,7 +226,7 @@ export function UploadDialog({ children }: { children: ReactNode }) {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Media Type</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Select a media type" />
@@ -196,7 +263,7 @@ export function UploadDialog({ children }: { children: ReactNode }) {
             
             <DialogFooter>
               <DialogClose asChild>
-                <Button type="button" variant="secondary">
+                <Button type="button" variant="secondary" disabled={form.formState.isSubmitting}>
                   Cancel
                 </Button>
               </DialogClose>
