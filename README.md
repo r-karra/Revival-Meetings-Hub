@@ -19,6 +19,6 @@ A platform to find, share, and experience revival meetings through community-upl
 
 ## Getting Started
 To run the project locally:
-1. Clone the repository.
+1. Clone the repository: `git clone https://github.com/r-karra/Revival-Meetings-Hub.git`
 2. Install dependencies: `npm install`
 3. Run the development server: `npm run dev`
